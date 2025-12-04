@@ -42,7 +42,7 @@ def generate_news_report():
         "OpenAI Anthropic Google Microsoft AI news latest", # 各社動向
         "New generative AI tools for video image and design latest", # クリエイティブ系（動画・画像・デザイン）
         "Lesser known AI tools new release", # マイナーなAI
-        "Innovative AI tools for business tasks and workflow" # クリエイティブ向け
+        "Innovative AI tools for business tasks and workflow" # ビジネス向け
     ]
     
     # Tavilyツールの初期化 (include_raw_content=Trueで記事中身も取得可能だが、デフォルトで十分な要約が返る)
