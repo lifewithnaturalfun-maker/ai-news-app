@@ -9,8 +9,18 @@ st.set_page_config(page_title="AI News Investigator", layout="centered", page_ic
 
 # --- UI: サイドバー設定 ---
 st.sidebar.header("⚙️ 設定")
-google_api_key = st.sidebar.text_input("Google Gemini API Key", type="password")
-tavily_api_key = st.sidebar.text_input("Tavily API Key", type="password")
+
+# 1. Google API Keyの読み込み
+if "GOOGLE_API_KEY" in st.secrets:
+    google_api_key = st.secrets["GOOGLE_API_KEY"]
+else:
+    google_api_key = st.sidebar.text_input("Google Gemini API Key", type="password")
+
+# 2. Tavily API Keyの読み込み
+if "TAVILY_API_KEY" in st.secrets:
+    tavily_api_key = st.secrets["TAVILY_API_KEY"]
+else:
+    tavily_api_key = st.sidebar.text_input("Tavily API Key", type="password")
 
 st.sidebar.markdown("---")
 st.sidebar.caption("Powered by Gemini 2.0 Flash")
@@ -30,10 +40,9 @@ def generate_news_report():
     queries = [
         "Generative AI new models release last 24 hours", # 全般・最新
         "OpenAI Anthropic Google Microsoft AI news latest", # 各社動向
-        "Video generation AI new tools latest", # 動画生成
-        "Image generation AI latest trends", # 画像生成
+        "New generative AI tools for video image and design latest", # クリエイティブ系（動画・画像・デザイン）
         "Lesser known AI tools new release", # マイナーなAI
-        "Innovative AI tools for creative workflow" # クリエイティブ向け
+        "Innovative AI tools for business tasks and workflow" # クリエイティブ向け
     ]
     
     # Tavilyツールの初期化 (include_raw_content=Trueで記事中身も取得可能だが、デフォルトで十分な要約が返る)
