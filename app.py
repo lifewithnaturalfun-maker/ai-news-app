@@ -51,7 +51,7 @@ def generate_news_report():
     search_context = ""
     found_links = set() # 重複除外用
     
-for query in queries:
+    for query in queries:
         try:
             results = tavily.invoke(query)
             for res in results:
