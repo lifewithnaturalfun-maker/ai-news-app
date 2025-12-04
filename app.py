@@ -2,57 +2,56 @@ import streamlit as st
 import datetime
 from langchain_community.tools.tavily_search import TavilySearchResults
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain.schema import HumanMessage, SystemMessage
 
 # --- ページ設定 ---
-st.set_page_config(page_title="AI News Consultant", layout="centered", page_icon="📰")
+st.set_page_config(page_title="AI News Investigator", layout="centered", page_icon="🕵️")
 
 # --- UI: サイドバー設定 ---
 st.sidebar.header("⚙️ 設定")
-st.sidebar.markdown("以下のAPIキーを入力してください")
-google_api_key = st.sidebar.text_input(" Google Gemini API Key", type="password")
+google_api_key = st.sidebar.text_input("Google Gemini API Key", type="password")
 tavily_api_key = st.sidebar.text_input("Tavily API Key", type="password")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("※APIキーは保存されず、このセッションでのみ使用されます。")
+st.sidebar.caption("Powered by Gemini 2.0 Flash")
 
 # --- ロジック: ニュース収集＆レポート作成 ---
 def generate_news_report():
-    # 1. バリデーション
     if not google_api_key or not tavily_api_key:
         st.error("⚠️ サイドバーで2つのAPIキーを設定してください。")
         return
 
-    status_area = st.empty() # 進行状況を表示するエリア
+    status_area = st.empty()
     
     # 2. 検索フェーズ (Tavily)
     status_area.info("🔍 Web全体から最新のAIニュースを検索し、記事の中身を読んでいます...")
     
     # 以前のご指定に基づいた検索クエリ
     queries = [
-        "Generative AI LLM trends last 24 hours",
-        "Video generation AI new models last 24 hours",
-        "OpenAI Anthropic Google Microsoft AI news update",
-        "New AI tools for creative and IT business"
+        "Generative AI new models release last 24 hours", # 全般・最新
+        "OpenAI Anthropic Google Microsoft AI news latest", # 各社動向
+        "Video generation AI new tools latest", # 動画生成
+        "Image generation AI latest trends", # 画像生成
+        "Lesser known AI tools new release", # マイナーなAI
+        "Innovative AI tools for creative workflow" # クリエイティブ向け
     ]
     
     # Tavilyツールの初期化 (include_raw_content=Trueで記事中身も取得可能だが、デフォルトで十分な要約が返る)
-    tavily = TavilySearchResults(tavily_api_key=tavily_api_key, k=3) # 各クエリ3件
+    tavily = TavilySearchResults(tavily_api_key=tavily_api_key, k=2) # 各クエリ3件
     
     search_context = ""
     found_links = set() # 重複除外用
     
-    for query in queries:
+for query in queries:
         try:
             results = tavily.invoke(query)
             for res in results:
                 url = res['url']
                 if url not in found_links:
-                    # AIに渡す情報を構築（タイトル、内容、URL）
-                    search_context += f"Title: {res['content']}\nURL: {url}\n\n"
+                    search_context += f"Source: {url}\nContent: {res['content']}\n\n"
                     found_links.add(url)
         except Exception as e:
-            st.warning(f"検索エラー ({query}): {e}")
+            print(f"Search error: {e}")
             
     if not search_context:
         status_area.error("ニュースが見つかりませんでした。")
@@ -64,7 +63,7 @@ def generate_news_report():
     llm = ChatGoogleGenerativeAI(
         model="gemini-2.0-flash",
         google_api_key=google_api_key,
-        temperature=0.5 # 事実に忠実に
+        temperature=0.5
     )
     
     current_date = datetime.datetime.now().strftime("%Y-%m-%d")
