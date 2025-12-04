@@ -51,20 +51,20 @@ def generate_news_report():
     search_context = ""
     found_links = set() # 重複除外用
     
-for query in queries:
-    try:
-        results = tavily.invoke(query)
-        for res in results:
-            url = res['url']
-            if url not in found_links:
-                search_context += f"Source: {url}\nContent: {res['content']}\n\n"
-                found_links.add(url)
-    except Exception as e:
-        print(f"Search error: {e}")
-        
-if not search_context:
-    status_area.error("ニュースが見つかりませんでした。")
-    return
+    for query in queries:
+        try:
+            results = tavily.invoke(query)
+            for res in results:
+                url = res['url']
+                if url not in found_links:
+                    search_context += f"Source: {url}\nContent: {res['content']}\n\n"
+                    found_links.add(url)
+        except Exception as e:
+            print(f"Search error: {e}")
+            
+    if not search_context:
+        status_area.error("ニュースが見つかりませんでした。")
+        return
 
     # 3. 分析・執筆フェーズ (Gemini)
     status_area.info("🤖 AIコンサルタントが情報を分析し、レポートを執筆中...")
